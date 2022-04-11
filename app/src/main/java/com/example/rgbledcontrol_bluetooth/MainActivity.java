@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,6 +35,7 @@ import android.widget.ToggleButton;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.larswerkman.holocolorpicker.ColorPicker;
+import com.larswerkman.holocolorpicker.SaturationBar;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -107,15 +109,42 @@ public class MainActivity extends AppCompatActivity {
                 String ledStatus;
                 if(toggleButton.isChecked()){
                     Toast.makeText(MainActivity.this,"ON",Toast.LENGTH_SHORT).show();
-                    ledStatus="On";
-                    sendColor(ledStatus);
+                    ledStatus="1";
+                    sendOnOff(ledStatus);
                 }
                 else{
                     Toast.makeText(MainActivity.this,"OFF",Toast.LENGTH_SHORT).show();
-                    ledStatus="Off";
-                    sendColor(ledStatus);
+                    ledStatus="0";
+                    sendOnOff(ledStatus);
                 }
 
+            }
+        });
+
+        picker=(ColorPicker) findViewById(R.id.picker);
+        SaturationBar saturationBar=(SaturationBar) findViewById(R.id.saturationBar);
+        picker.addSaturationBar(saturationBar);
+        picker.setShowOldCenterColor(false);
+
+        //led의 세기를 조절하는 시크바
+        seekBar=(SeekBar)findViewById(R.id.seekbar);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                brightness=seekBar.getProgress(); //brightness : 선택한 밝기 (0~100)
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) { }
+            public void onStopTrackingTouch(SeekBar seekBar) { }
+        });
+
+        // SEND COLOR 버튼 클릭 이벤트
+        sendButton=(Button)findViewById(R.id.sendButton);
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendColor();
+                Toast.makeText(MainActivity.this,"Send Color",Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -310,8 +339,28 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void sendColor(String msg){ // 색상 정보 또는 On/Off 정보 전송
+    public void sendOnOff(String msg){ // On/Off 정보 전송
         if(connectedThread!=null)
             connectedThread.write(msg);
     }
+
+    // 선택한 색상의 RGB 값을 전송
+    public void sendColor(){
+        int color=picker.getColor(); //ColorPicker에서 선택한 색상 가져옴
+        int r,g,b;
+
+        r= Color.red(color);
+        g=Color.green(color);
+        b=Color.blue(color);
+
+        //RGB000000000BRT000 형식의 문자열 전송
+        String str="RGB"+String.format("%03d",r)+String.format("%03d",g)+String.format("%03d",b)
+                +"BRT"+String.format("%03d",brightness);
+
+        if(connectedThread!=null)
+            connectedThread.write(str);
+    }
+
+
+
 }
