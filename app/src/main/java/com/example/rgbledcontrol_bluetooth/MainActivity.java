@@ -110,11 +110,11 @@ public class MainActivity extends AppCompatActivity {
         connectText=(TextView) findViewById(R.id.connectText); //연결 상태 출력하는 텍스트뷰
 
         // 초기 색상 연두색
-        colors[1]=(byte)128;
-        colors[2]=(byte)255;
-        colors[3]=(byte)0;
-        colors[4]=(byte)100;
-        colors[5]=(byte)0;
+        colors[1]=(byte)128; //R
+        colors[2]=(byte)255; //G
+        colors[3]=(byte)0; //B
+        colors[4]=(byte)100; //밝기
+        colors[5]=(byte)0; //인체감지 모드
 
         // On,Off 토글 버튼 클릭 이벤트
         toggleButton=(ToggleButton) findViewById(R.id.toggleButton);
@@ -142,11 +142,13 @@ public class MainActivity extends AppCompatActivity {
                 if(isChecked){
                     colors[5]=(byte) 1; // 인체 감지 모드 on
                     Toast.makeText(MainActivity.this,"인체 감지 모드 On",Toast.LENGTH_SHORT).show();
+                    sendColor();
                 }
 
                 else {
                     colors[5]=(byte) 0; // 인체 감지 모드 off
                     Toast.makeText(MainActivity.this,"인체 감지 모드 Off",Toast.LENGTH_SHORT).show();
+                    sendColor();
                 }
             }
         });
