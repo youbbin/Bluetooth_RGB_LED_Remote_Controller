@@ -73,13 +73,11 @@
         android:layout_weight="1"
         android:textColor="@color/white"/>
 
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingButton"
-        android:layout_width="90dp"
+    <Switch
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_baseline_refresh_24" />
+        android:text="인체감지 모드"
+        android:layout_margin="20dp"
+        android:id="@+id/modeSwitch"/>
 
 </LinearLayout>

@@ -28,8 +28,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -63,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     OutputStream outputStream;
     InputStream inputStream;
     boolean paired = false;
-    byte[] colors = new byte[5]; // 블루투스 기기로 보낼 byte 배열 데이터
+    byte[] colors = new byte[6]; // 블루투스 기기로 보낼 byte 배열 데이터
     String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
     ConnectedThread connectedThread;
 
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     SeekBar seekBar;
     ToggleButton toggleButton;
     Button sendButton;
-    FloatingActionButton refreshButton;
+    Switch modeSwitch;
     int brightness=100;
     TextView connectText;
     int ledStatus;
@@ -112,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
         colors[2]=(byte)255;
         colors[3]=(byte)0;
         colors[4]=(byte)100;
+        colors[5]=(byte)0;
 
         // On,Off 토글 버튼 클릭 이벤트
         toggleButton=(ToggleButton) findViewById(R.id.toggleButton);
@@ -132,6 +135,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        modeSwitch=(Switch)findViewById(R.id.modeSwitch); // 인체 감지 모드 on,off 스위치
+        modeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    colors[5]=(byte) 1; // 인체 감지 모드 on
+                    Toast.makeText(MainActivity.this,"인체 감지 모드 On",Toast.LENGTH_SHORT).show();
+                }
+
+                else {
+                    colors[5]=(byte) 0; // 인체 감지 모드 off
+                    Toast.makeText(MainActivity.this,"인체 감지 모드 Off",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         picker=(ColorPicker) findViewById(R.id.picker);
         SaturationBar saturationBar=(SaturationBar) findViewById(R.id.saturationBar);
         picker.addSaturationBar(saturationBar);
@@ -155,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 sendColor();
-                Toast.makeText(MainActivity.this,"Send Color",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this,"색상 전송",Toast.LENGTH_SHORT).show();
             }
         });
     }
