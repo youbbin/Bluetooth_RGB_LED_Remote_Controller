@@ -30,6 +30,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -72,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
     Button sendButton;
     FloatingActionButton refreshButton;
     int brightness=100;
+    TextView connectText;
+    int ledStatus;
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() { // 브로드캐스트 리시버
         @Override
@@ -102,20 +105,28 @@ public class MainActivity extends AppCompatActivity {
         btArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         deviceAddressArray = new ArrayList<>();
 
+        connectText=(TextView) findViewById(R.id.connectText); //연결 상태 출력하는 텍스트뷰
+
+        // 초기 색상 연두색
+        colors[1]=(byte)128;
+        colors[2]=(byte)255;
+        colors[3]=(byte)0;
+        colors[4]=(byte)100;
+
         // On,Off 토글 버튼 클릭 이벤트
         toggleButton=(ToggleButton) findViewById(R.id.toggleButton);
         toggleButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view){
-                String ledStatus;
+
                 if(toggleButton.isChecked()){
                     Toast.makeText(MainActivity.this,"ON",Toast.LENGTH_SHORT).show();
-                    ledStatus="1";
-                    sendOnOff(ledStatus);
+                    ledStatus=1;
+                    sendColor();
                 }
                 else{
                     Toast.makeText(MainActivity.this,"OFF",Toast.LENGTH_SHORT).show();
-                    ledStatus="0";
-                    sendOnOff(ledStatus);
+                    ledStatus=0;
+                    sendColor();
                 }
 
             }
@@ -147,8 +158,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this,"Send Color",Toast.LENGTH_SHORT).show();
             }
         });
-
-
     }
 
     @Override
@@ -173,8 +182,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return false;
     }
-
-
 
     private void selectPairedDevice() { //페어링된 기기 선택
         pairedDevices = bluetoothAdapter.getBondedDevices();
@@ -262,6 +269,7 @@ public class MainActivity extends AppCompatActivity {
                         outputStream = bluetoothSocket.getOutputStream();
                         inputStream = bluetoothSocket.getInputStream();
                         Toast.makeText(getApplicationContext(), "연결 완료", Toast.LENGTH_SHORT).show();
+                        connectText.setText(bluetoothDevice.getName()+" connected");
                     } catch(IOException e) {
                         e.printStackTrace();
                     }
@@ -339,28 +347,26 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void sendOnOff(String msg){ // On/Off 정보 전송
-        if(connectedThread!=null)
-            connectedThread.write(msg);
-    }
-
     // 선택한 색상의 RGB 값을 전송
-    public void sendColor(){
-        int color=picker.getColor(); //ColorPicker에서 선택한 색상 가져옴
-        int r,g,b;
+    public void sendColor() {
+        int color = picker.getColor(); //ColorPicker에서 선택한 색상 가져옴
+        int r, g, b;
 
-        r= Color.red(color);
-        g=Color.green(color);
-        b=Color.blue(color);
+        r = Color.red(color);
+        g = Color.green(color);
+        b = Color.blue(color);
 
-        //RGB000000000BRT000 형식의 문자열 전송
-        String str="RGB"+String.format("%03d",r)+String.format("%03d",g)+String.format("%03d",b)
-                +"BRT"+String.format("%03d",brightness);
+        if(ledStatus==1) //on
+            colors[0] = (byte) 1;
+        else if(ledStatus==0) //off
+            colors[0] = (byte) 0;
 
-        if(connectedThread!=null)
-            connectedThread.write(str);
+        colors[1] = (byte) r;
+        colors[2] = (byte) g;
+        colors[3] = (byte) b;
+        colors[4] = (byte) brightness;
+
+        if (connectedThread != null)
+            connectedThread.write(colors);
     }
-
-
-
 }

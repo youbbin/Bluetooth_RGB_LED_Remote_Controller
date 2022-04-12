@@ -8,6 +8,12 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No Divice Connected"
+        android:layout_marginTop="5dp"
+        android:id="@+id/connectText"/>
 
     <com.larswerkman.holocolorpicker.ColorPicker
         android:id="@+id/picker"
